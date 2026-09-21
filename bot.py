@@ -136,8 +136,15 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if clean == "صراحة":
         await truth(update, context)
 
-    elif clean == "جرأة":
-        await dare(update, context)
+ elif clean.startswith("أغنية "):
+    song_name = clean.replace("أغنية ", "", 1).strip()
+    await update.message.reply_text(
+        f"🎵 طبوشة عم تدورلك على: {song_name}\n\n"
+        f"https://www.youtube.com/results?search_query={song_name.replace(' ', '+')}"
+    )
+
+elif clean == "أغنية":
+    await song(update, context)
 
     elif clean == "نرد":
         await dice(update, context)
