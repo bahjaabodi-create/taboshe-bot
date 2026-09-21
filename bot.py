@@ -1,5 +1,6 @@
 import os
 import random
+from urllib.parse import quote_plus
 
 from telegram import Update
 from telegram.ext import (
@@ -30,22 +31,53 @@ DARES = [
 ]
 
 SONGS = [
-    "🎵 Nassif Zeytoun & Abu Ward - Kazdou\nhttps://www.youtube.com/results?search_query=Nassif+Zeytoun+Kazdou",
-    "🎵 Amr Diab - Khaleek Maaya\nhttps://www.youtube.com/results?search_query=Amr+Diab+Khaleek+Maaya",
-    "🎵 Nancy Ajram - El Hob Zay El Watar\nhttps://www.youtube.com/results?search_query=Nancy+Ajram+El+Hob+Zay+El+Watar",
-    "🎵 Akhras - Harb\nhttps://www.youtube.com/results?search_query=Akhras+Harb",
+    "Nassif Zeytoun - Kazdou",
+    "Amr Diab - Khaleek Maaya",
+    "Nancy Ajram - El Hob Zay El Watar",
+    "Akhras - Harb",
+]
+
+LOVE_REPLIES = [
+    "وأنا كمان بحبك يا روحي 😂💕",
+    "طبوشة كمان بتحبك 😭💕",
+    "بعرف 😌💕 بس لا تتعلق فيني كتير 😂",
+    "وأنا شو بدي ساوي بهالحب هاد؟ 😭😂",
+]
+
+HATE_REPLIES = [
+    "وأنا شو عملتلك؟ 😭😂",
+    "لااااا طبوشة حساسة 😭💔",
+    "خلص زعلت منك 😤😂",
+    "بكرا بترجع بتحبني، بعرفك 😌😂",
+]
+
+RELATIONSHIP_ACCEPT = [
+    "موافقة 😌💍 بس الشبكة على حسابك 😂",
+    "يلا موافقة… بس لا تقول بعدين ما حذرتك 😭😂",
+    "تمت الموافقة رسميًا 💍😂 وين بدنا نحتفل؟",
+    "موافقة، بس عندي شروط… أولها ما تزعلني 😏😂",
+    "خلص ارتبطنا، مبروك إلك ولي 😂❤️",
+]
+
+RELATIONSHIP_REJECT = [
+    "مرفوض الطلب… حاول مرة ثانية بعد 3-5 أيام عمل 😂",
+    "آسفة، قلبي حاليًا خارج نطاق التغطية 📵😂",
+    "لااا، خلينا أصدقاء… أصدقاء بعيدين كمان أحسن 😂",
+    "رفضت طلب الارتباط، السبب: طبوشة بدها تضل سنغل 😂💔",
+    "لا حبيبي/حبيبتي، طبوشة مرتبطة بالنوم حاليًا 😭😂",
 ]
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "😂 أهلااا! أنا طبوشة 💕\n\n"
-        "أنا عضوة جديدة بالكروب ومالي دخل بشي 👀😂\n\n"
         "جربي:\n"
         "• صراحة\n"
         "• جرأة\n"
         "• نرد\n"
         "• أغنية\n"
+        "• أغنية + اسم الأغنية\n"
+        "• نرتبط\n"
         "• مساعدة\n\n"
         "وكمان فيكي تحكي معي عادي 😈"
     )
@@ -58,9 +90,10 @@ async def help_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔥 جرأة — تحدي جرأة\n"
         "🎲 نرد — رمية نرد\n"
         "🎵 أغنية — أغنية عشوائية\n"
+        "🎵 أغنية + اسم — البحث عن أغنية\n"
         "💕 بحبك — جربي شو رح جاوبك\n"
-        "😂 بكرهك — جربي كمان\n\n"
-        "وفيكي تكتبي الأوامر مع أو بدون /"
+        "😂 بكرهك — جربي كمان\n"
+        "💍 نرتبط — شو رح يكون جواب طبوشة؟ 😂"
     )
 
 
@@ -85,9 +118,29 @@ async def dice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def song(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    song_name = random.choice(SONGS)
+    link = (
+        "https://www.youtube.com/results?search_query="
+        + quote_plus(song_name)
+    )
+
     await update.message.reply_text(
-        "🎵 طبوشة اختارتلك هاي الأغنية:\n\n"
-        + random.choice(SONGS)
+        f"🎵 طبوشة اختارتلك:\n\n"
+        f"🎶 {song_name}\n\n"
+        f"{link}"
+    )
+
+
+async def search_song(update: Update, song_name: str):
+    link = (
+        "https://www.youtube.com/results?search_query="
+        + quote_plus(song_name)
+    )
+
+    await update.message.reply_text(
+        f"🎵 طبوشة عم تدورلك على:\n\n"
+        f"🎶 {song_name}\n\n"
+        f"{link}"
     )
 
 
@@ -99,24 +152,28 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # بحبك
     if "بحبك" in text:
-        replies = [
-            "وأنا كمان بحبك يا روحي 😂💕",
-            "طبوشة كمان بتحبك 😭💕",
-            "بعرف 😌💕 بس لا تتعلق فيني كتير 😂",
-            "وأنا شو بدي ساوي بهالحب هاد؟ 😭😂",
-        ]
-        await update.message.reply_text(random.choice(replies))
+        await update.message.reply_text(
+            random.choice(LOVE_REPLIES)
+        )
         return
 
     # بكرهك
     if "بكرهك" in text:
-        replies = [
-            "وأنا شو عملتلك؟ 😭😂",
-            "لااااا طبوشة حساسة 😭💔",
-            "خلص زعلت منك 😤😂",
-            "بكرا بترجع بتحبني، بعرفك 😌😂",
-        ]
-        await update.message.reply_text(random.choice(replies))
+        await update.message.reply_text(
+            random.choice(HATE_REPLIES)
+        )
+        return
+
+    # نرتبط
+    if "نرتبط" in text:
+        if random.choice([True, False]):
+            await update.message.reply_text(
+                "💍 " + random.choice(RELATIONSHIP_ACCEPT)
+            )
+        else:
+            await update.message.reply_text(
+                "💔 " + random.choice(RELATIONSHIP_REJECT)
+            )
         return
 
     # طبوشة
@@ -130,29 +187,41 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(random.choice(replies))
         return
 
-    # الأوامر العربية مع أو بدون /
-    clean = text.replace("/", "", 1).strip()
+    # إزالة / من بداية الرسالة
+    clean = text[1:].strip() if text.startswith("/") else text
 
+    # صراحة
     if clean == "صراحة":
         await truth(update, context)
+        return
 
- elif clean.startswith("أغنية "):
-    song_name = clean.replace("أغنية ", "", 1).strip()
-    await update.message.reply_text(
-        f"🎵 طبوشة عم تدورلك على: {song_name}\n\n"
-        f"https://www.youtube.com/results?search_query={song_name.replace(' ', '+')}"
-    )
+    # جرأة
+    if clean == "جرأة":
+        await dare(update, context)
+        return
 
-elif clean == "أغنية":
-    await song(update, context)
-
-    elif clean == "نرد":
+    # نرد
+    if clean == "نرد":
         await dice(update, context)
+        return
 
- 
+    # أغنية + اسم أغنية
+    if clean.startswith("أغنية "):
+        song_name = clean.replace("أغنية ", "", 1).strip()
 
-    elif clean == "مساعدة":
+        if song_name:
+            await search_song(update, song_name)
+            return
+
+    # أغنية فقط
+    if clean in ["أغنية", "اغنية", "أغاني", "اغاني"]:
+        await song(update, context)
+        return
+
+    # مساعدة
+    if clean == "مساعدة":
         await help_ar(update, context)
+        return
 
 
 def main():
@@ -160,10 +229,10 @@ def main():
 
     app = Application.builder().token(token).build()
 
-    # الأمر الأساسي
+    # /start
     app.add_handler(CommandHandler("start", start))
 
-    # التقاط الكلام العربي
+    # كل الرسائل العادية
     app.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
@@ -171,12 +240,10 @@ def main():
         )
     )
 
-    # حتى /صراحة و /جرأة وغيرها تشتغل
+    # الأوامر التي تبدأ بـ /
     app.add_handler(
         MessageHandler(
-            filters.TEXT & filters.Regex(
-                r"^/(صراحة|جرأة|نرد|أغنية|مساعدة)$"
-            ),
+            filters.TEXT & filters.COMMAND,
             chat
         )
     )
