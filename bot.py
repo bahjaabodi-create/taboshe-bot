@@ -149,8 +149,7 @@ elif clean == "أغنية":
     elif clean == "نرد":
         await dice(update, context)
 
-    elif clean == "أغنية":
-        await song(update, context)
+ 
 
     elif clean == "مساعدة":
         await help_ar(update, context)
